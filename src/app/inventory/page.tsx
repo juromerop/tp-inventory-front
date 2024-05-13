@@ -20,7 +20,7 @@ function Card({ product }: { product: Product }) {
   return (
     <>
       <div
-        className={"mb-6 p-4 rounded-lg bg-gray-600 w-96 relative flex cursor-pointer"} 
+        className={"mb-6 p-4 rounded-lg bg-gray-600 w-80 relative flex cursor-pointer"} 
         onClick={() => setIsModalOpen(true)}
       >
         <img 
@@ -33,7 +33,7 @@ function Card({ product }: { product: Product }) {
           <p className="text-lg pt-3">
             {product.category} - {product.subcategory}
           </p>
-          <p className="text-md pt-3 font-extralight">{product.quantity} units</p>
+          <p className="text-md pt-4 font-extralight">{product.quantity} units</p>
         </div>
       </div>
 
@@ -84,6 +84,15 @@ export default function InventoryView() {
       date: "2022-02-02",
       imageUrl: "https://tp-inventory-images.s3.us-east-2.amazonaws.com/IMG_8306.jpg", 
     },
+    {
+        name: "Product 2",
+        description: "Description 2",
+        category: "category2",
+        subcategory: "subcategory2",
+        quantity: 20,
+        date: "2022-02-02",
+        imageUrl: "", 
+      },
   ];
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-800 text-white">
