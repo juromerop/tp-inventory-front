@@ -6,6 +6,7 @@ interface Transaction {
   type: "add" | "remove";
   amount: number;
   date: string;
+  truckNumber: number;
 }
 
 function Card({ transaction }: { transaction: Transaction }) {
@@ -18,11 +19,12 @@ function Card({ transaction }: { transaction: Transaction }) {
       }`}
     >
       <h2 className="text-xl font-bold">{transaction.name}</h2>
-      <p className="text-lg">
+      <p className="text-lg mt-2">
         {transaction.type === "add" ? "+" : "-"}
         {transaction.amount} gallons
       </p>
-      <p className="text-sm text-gray-400">{transaction.date}</p>
+        <p className="text-sm text-gray-200 mt-2">Truck: {transaction.truckNumber}</p>
+      <p className="text-sm text-gray-400 mt-2">{transaction.date}</p>
     </div>
   );
 }
@@ -30,22 +32,14 @@ function Card({ transaction }: { transaction: Transaction }) {
 export default function DieselView() {
   const dieselReserve = 100.5;
   const transactions: Transaction[] = [
-    { name: "John Doe", type: "add", amount: 10.3, date: "2022-01-01" },
-    { name: "Jane Doe", type: "remove", amount: 5.2, date: "2022-01-02" },
-    { name: "John Doe", type: "add", amount: 10.3, date: "2022-01-01" },
-    { name: "Jane Doe", type: "remove", amount: 5.2, date: "2022-01-02" },
-    { name: "John Doe", type: "add", amount: 10.3, date: "2022-01-01" },
-    { name: "Jane Doe", type: "remove", amount: 5.2, date: "2022-01-02" },
-    { name: "John Doe", type: "add", amount: 10.3, date: "2022-01-01" },
-    { name: "Jane Doe", type: "remove", amount: 5.2, date: "2022-01-02" },
-    { name: "John Doe", type: "add", amount: 10.3, date: "2022-01-01" },
-    { name: "Jane Doe", type: "remove", amount: 5.2, date: "2022-01-02" },
-    { name: "John Doe", type: "add", amount: 10.3, date: "2022-01-01" },
-    { name: "Jane Doe", type: "remove", amount: 5.2, date: "2022-01-02" },
-    { name: "John Doe", type: "add", amount: 10.3, date: "2022-01-01" },
-    { name: "Jane Doe", type: "remove", amount: 5.2, date: "2022-01-02" },
-    { name: "John Doe", type: "add", amount: 10.3, date: "2022-01-01" },
-    { name: "Jane Doe", type: "remove", amount: 5.2, date: "2022-01-02" },
+    { name: "John Doe", type: "add", amount: 10.3, date: "2022-01-01", truckNumber: 1876 },
+    { name: "Jane Doe", type: "remove", amount: 5.2, date: "2022-01-02", truckNumber: 8977 },
+    { name: "John Doe", type: "add", amount: 10.3, date: "2022-01-01", truckNumber: 1876 },
+    { name: "Jane Doe", type: "remove", amount: 5.2, date: "2022-01-02", truckNumber: 8977 },
+    { name: "John Doe", type: "add", amount: 10.3, date: "2022-01-01", truckNumber: 1876 },
+    { name: "Jane Doe", type: "remove", amount: 5.2, date: "2022-01-02", truckNumber: 8977 },
+    { name: "John Doe", type: "add", amount: 10.3, date: "2022-01-01", truckNumber: 1876 },
+    { name: "Jane Doe", type: "remove", amount: 5.2, date: "2022-01-02", truckNumber: 8977 },
   ];
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -91,6 +85,10 @@ export default function DieselView() {
             <label className="block">
               Gallons: 
               <input type="number" className="w-full p-2 border border-gray-300 rounded mt-1 bg-white text-black" />
+            </label>
+            <label className="block">
+              Truck number: 
+              <input type="text" className="w-full p-2 border border-gray-300 rounded mt-1 bg-white text-black" />
             </label>
             <button className="w-full p-2 rounded bg-green-500 text-white" type="submit">
               Submit
