@@ -7,8 +7,8 @@ import { useState } from 'react';
 interface Product {
   name: string;
   description: string;
-  category: "category1" | "category2";
-  subcategory: "subcategory1" | "subcategory2";
+  category: string;
+  subcategory: string;
   quantity: number;
   date: string;
   imageUrl: string;
