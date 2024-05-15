@@ -12,7 +12,7 @@ interface Transaction {
 function Card({ transaction }: { transaction: Transaction }) {
   return (
     <div
-      className={`mb-6 p-4 rounded-lg bg-gray-600 w-64 ${
+      className={`mb-6 p-4 rounded-lg bg-gray-600 w-56 text-center ${
         transaction.type === "add"
           ? "border-green-500 shadow-green"
           : "border-red-500 shadow-red"

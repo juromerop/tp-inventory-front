@@ -15,17 +15,34 @@ interface Product {
 }
 
 interface Category {
-    idCategory: string;
-    title: string;
-    }
+  idCategory: string;
+  title: string;
+}
 
 interface Subcategory {
-    idSubCategory: string;
-    title: string;
-    }
+  idSubCategory: string;
+  title: string;
+}
 
 function Card({ product }: { product: Product }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedQuantity, setEditedQuantity] = useState(product.quantity);
+
+  const handleEditClick = () => {
+    setIsEditing(true);
+    setEditedQuantity(product.quantity);
+  };
+
+  const handleConfirmClick = () => {
+    if (editedQuantity < 0) {
+      alert("You can't have a negative quantity");
+      return;
+    }
+
+    product.quantity = editedQuantity;
+    setIsEditing(false);
+  };
 
   return (
     <>
@@ -53,7 +70,7 @@ function Card({ product }: { product: Product }) {
 
       {isModalOpen && (
         <div className="fixed inset-0 flex items-center justify-center z-10 overflow-auto">
-          <div className="bg-gray-600 p-4 rounded-lg shadow-lg text-white max-w-lg w-full max-h-full overflow-auto">
+          <div className="bg-gray-600 p-4 rounded-lg shadow-lg text-white max-w-lg w-full max-h-full overflow-auto relative">
             <h2 className="text-2xl font-bold mb-4 text-center">
               {product.name}
             </h2>
@@ -65,13 +82,41 @@ function Card({ product }: { product: Product }) {
             <p className="text-lg">
               {product.category} - {product.subcategory}
             </p>
-            <p className="text-md pt-2 font-extralight">
-              {product.quantity} units
-            </p>
+            {isEditing ? (
+              <input
+                className="w-[20%] p-2 border border-gray-300 rounded mt-1 bg-white text-black"
+                type="number"
+                min={product.quantity}
+                value={editedQuantity}
+                onChange={(e) => setEditedQuantity(parseInt(e.target.value))}
+              />
+            ) : (
+              <p className="text-md pt-2 font-extralight">
+                {product.quantity} units
+              </p>
+            )}
             <p className="text-md pt-2">{product.description}</p>
+            {isEditing ? (
+              <button
+                className="absolute bottom-4 right-4 text-green-500"
+                onClick={handleConfirmClick}
+              >
+                Confirm
+              </button>
+            ) : (
+              <button
+                className="absolute bottom-4 right-4 text-blue-500"
+                onClick={handleEditClick}
+              >
+                Edit
+              </button>
+            )}
             <button
               className="mt-4 text-red-500"
-              onClick={() => setIsModalOpen(false)}
+              onClick={() => {
+                setIsModalOpen(false);
+                setIsEditing(false);
+              }}
             >
               Close
             </button>
@@ -134,6 +179,39 @@ export default function InventoryView() {
       imageUrl:
         "https://tp-inventory-images.s3.us-east-2.amazonaws.com/IMG_8307.jpg",
     },
+    {
+      name: "Gafas filtro azul",
+      description:
+        "Gafas con filtro azul para proteger tus ojos de la luz azul de las pantallas.",
+      category: "Cuidado personal",
+      subcategory: "Salud visual",
+      quantity: 20,
+      date: "2022-02-02",
+      imageUrl:
+        "https://tp-inventory-images.s3.us-east-2.amazonaws.com/IMG_8307.jpg",
+    },
+    {
+      name: "Gafas filtro azul",
+      description:
+        "Gafas con filtro azul para proteger tus ojos de la luz azul de las pantallas.",
+      category: "Cuidado personal",
+      subcategory: "Salud visual",
+      quantity: 20,
+      date: "2022-02-02",
+      imageUrl:
+        "https://tp-inventory-images.s3.us-east-2.amazonaws.com/IMG_8307.jpg",
+    },
+    {
+      name: "Gafas filtro azul",
+      description:
+        "Gafas con filtro azul para proteger tus ojos de la luz azul de las pantallas.",
+      category: "Cuidado personal",
+      subcategory: "Salud visual",
+      quantity: 20,
+      date: "2022-02-02",
+      imageUrl:
+        "https://tp-inventory-images.s3.us-east-2.amazonaws.com/IMG_8307.jpg",
+    },
   ];
   const filteredProducts = products.filter((product) => {
     return (
@@ -148,13 +226,18 @@ export default function InventoryView() {
         <a href="/menu">Back</a>
       </button>
       <h1 className="text-2xl font-bold mb-5 mt-8">Inventory</h1>
-      <input
-        type="text"
-        placeholder="Search by name"
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-        className="mb-4 p-2 border border-gray-300 rounded bg-white text-black"
-      />
+      <div className="flex justify-center items-center mb-4">
+        <input
+          type="text"
+          placeholder="Search by name"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="p-2 border border-gray-300 rounded bg-white text-black"
+        />
+        <button className="ml-2 p-2 bg-gray-500 rounded bg-white text-withe">
+          Go
+        </button>
+      </div>
       <button
         className="mb-4 p-2 bg-gray-600 rounded text-white text-sm"
         onClick={() => setIsSearchMenuOpen(!isSearchMenuOpen)}
@@ -169,7 +252,7 @@ export default function InventoryView() {
             className="w-full p-2 border border-gray-300 rounded bg-white text-black"
           >
             <option value="">All Categories</option>
-            {categories.map((category : Category) => (
+            {categories.map((category: Category) => (
               <option key={category.idCategory} value={category.idCategory}>
                 {category.title}
               </option>
@@ -182,12 +265,20 @@ export default function InventoryView() {
             disabled={categoryFilter === ""}
           >
             <option value="">All Subcategories</option>
-            {subcategories.map((subcategory : Subcategory) => (
-              <option key={subcategory.idSubCategory} value={subcategory.idSubCategory}>
+            {subcategories.map((subcategory: Subcategory) => (
+              <option
+                key={subcategory.idSubCategory}
+                value={subcategory.idSubCategory}
+              >
                 {subcategory.title}
               </option>
             ))}
           </select>
+          <div className="flex justify-center">
+            <button className="p-2 bg-gray-500 rounded text-white">
+              Search
+            </button>
+          </div>
         </div>
       )}
       {products.map((product, index) => (
