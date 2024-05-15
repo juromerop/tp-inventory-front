@@ -2,7 +2,7 @@
 import { strict } from "assert";
 import React from "react";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface Product {
   name: string;
@@ -14,8 +14,35 @@ interface Product {
   imageUrl: string;
 }
 
+interface Category {
+  idCategory: string;
+  title: string;
+}
+
+interface Subcategory {
+  idSubCategory: string;
+  title: string;
+}
+
 function Card({ product }: { product: Product }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedQuantity, setEditedQuantity] = useState(product.quantity);
+
+  const handleEditClick = () => {
+    setIsEditing(true);
+    setEditedQuantity(product.quantity);
+  };
+
+  const handleConfirmClick = () => {
+    if (editedQuantity < 0) {
+      alert("You can't have a negative quantity");
+      return;
+    }
+
+    product.quantity = editedQuantity;
+    setIsEditing(false);
+  };
 
   return (
     <>
@@ -31,8 +58,8 @@ function Card({ product }: { product: Product }) {
           className="h-full w-1/3 object-cover rounded-md shadow-xl"
         />
         <div className="ml-4 text-center">
-          <h2 className="text-xl font-bold">{product.name}</h2>
-          <p className="text-lg pt-3">
+          <h2 className="text-md font-bold">{product.name}</h2>
+          <p className="text-md pt-3">
             {product.category} - {product.subcategory}
           </p>
           <p className="text-md pt-4 font-extralight">
@@ -43,7 +70,7 @@ function Card({ product }: { product: Product }) {
 
       {isModalOpen && (
         <div className="fixed inset-0 flex items-center justify-center z-10 overflow-auto">
-          <div className="bg-gray-600 p-4 rounded-lg shadow-lg text-white max-w-lg w-full max-h-full overflow-auto">
+          <div className="bg-gray-600 p-4 rounded-lg shadow-lg text-white max-w-lg w-full max-h-full overflow-auto relative">
             <h2 className="text-2xl font-bold mb-4 text-center">
               {product.name}
             </h2>
@@ -55,13 +82,41 @@ function Card({ product }: { product: Product }) {
             <p className="text-lg">
               {product.category} - {product.subcategory}
             </p>
-            <p className="text-md pt-2 font-extralight">
-              {product.quantity} units
-            </p>
+            {isEditing ? (
+              <input
+                className="w-[20%] p-2 border border-gray-300 rounded mt-1 bg-white text-black"
+                type="number"
+                min={product.quantity}
+                value={editedQuantity}
+                onChange={(e) => setEditedQuantity(parseInt(e.target.value))}
+              />
+            ) : (
+              <p className="text-md pt-2 font-extralight">
+                {product.quantity} units
+              </p>
+            )}
             <p className="text-md pt-2">{product.description}</p>
+            {isEditing ? (
+              <button
+                className="absolute bottom-4 right-4 text-green-500"
+                onClick={handleConfirmClick}
+              >
+                Confirm
+              </button>
+            ) : (
+              <button
+                className="absolute bottom-4 right-4 text-blue-500"
+                onClick={handleEditClick}
+              >
+                Edit
+              </button>
+            )}
             <button
               className="mt-4 text-red-500"
-              onClick={() => setIsModalOpen(false)}
+              onClick={() => {
+                setIsModalOpen(false);
+                setIsEditing(false);
+              }}
             >
               Close
             </button>
@@ -77,6 +132,30 @@ export default function InventoryView() {
   const [isSearchMenuOpen, setIsSearchMenuOpen] = useState(false);
   const [categoryFilter, setCategoryFilter] = useState("");
   const [subcategoryFilter, setSubcategoryFilter] = useState("");
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [categories, setCategories] = useState([]);
+  const [subcategories, setSubcategories] = useState([]);
+
+  useEffect(() => {
+    fetch(
+      "http://tp-loadbalancer-831349791.us-east-1.elb.amazonaws.com/api/category"
+    )
+      .then((response) => response.json())
+      .then((data) => setCategories(data));
+  }, []);
+
+  useEffect(() => {
+    if (categoryFilter !== "") {
+      fetch(
+        `http://tp-loadbalancer-831349791.us-east-1.elb.amazonaws.com/api/subcategory/${categoryFilter}`
+      )
+        .then((response) => response.json())
+        .then((data) => setSubcategories(data));
+    } else {
+      setSubcategories([]);
+    }
+  }, [categoryFilter]);
+
   const products: Product[] = [
     {
       name: "Mouse Logitech G502 Hero",
@@ -88,6 +167,39 @@ export default function InventoryView() {
       date: "2022-01-01",
       imageUrl:
         "https://tp-inventory-images.s3.us-east-2.amazonaws.com/IMG_8306.jpg",
+    },
+    {
+      name: "Gafas filtro azul",
+      description:
+        "Gafas con filtro azul para proteger tus ojos de la luz azul de las pantallas.",
+      category: "Cuidado personal",
+      subcategory: "Salud visual",
+      quantity: 20,
+      date: "2022-02-02",
+      imageUrl:
+        "https://tp-inventory-images.s3.us-east-2.amazonaws.com/IMG_8307.jpg",
+    },
+    {
+      name: "Gafas filtro azul",
+      description:
+        "Gafas con filtro azul para proteger tus ojos de la luz azul de las pantallas.",
+      category: "Cuidado personal",
+      subcategory: "Salud visual",
+      quantity: 20,
+      date: "2022-02-02",
+      imageUrl:
+        "https://tp-inventory-images.s3.us-east-2.amazonaws.com/IMG_8307.jpg",
+    },
+    {
+      name: "Gafas filtro azul",
+      description:
+        "Gafas con filtro azul para proteger tus ojos de la luz azul de las pantallas.",
+      category: "Cuidado personal",
+      subcategory: "Salud visual",
+      quantity: 20,
+      date: "2022-02-02",
+      imageUrl:
+        "https://tp-inventory-images.s3.us-east-2.amazonaws.com/IMG_8307.jpg",
     },
     {
       name: "Gafas filtro azul",
@@ -113,16 +225,21 @@ export default function InventoryView() {
       <button className="fixed top-0 left-0 m-4 p-2 bg-gray-600 rounded text-white">
         <a href="/menu">Back</a>
       </button>
-      <h1 className="text-4xl font-bold mb-5 mt-8">Inventory</h1>
-      <input
-        type="text"
-        placeholder="Search by name"
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-        className="mb-4 p-2 border border-gray-300 rounded bg-white text-black"
-      />
+      <h1 className="text-2xl font-bold mb-5 mt-8">Inventory</h1>
+      <div className="flex justify-center items-center mb-4">
+        <input
+          type="text"
+          placeholder="Search by name"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="p-2 border border-gray-300 rounded bg-white text-black"
+        />
+        <button className="ml-2 p-2 bg-gray-500 rounded bg-white text-withe">
+          Go
+        </button>
+      </div>
       <button
-        className="mb-4 p-2 bg-gray-600 rounded text-white"
+        className="mb-4 p-2 bg-gray-600 rounded text-white text-sm"
         onClick={() => setIsSearchMenuOpen(!isSearchMenuOpen)}
       >
         {isSearchMenuOpen ? "Hide" : "Show"} Advanced Search
@@ -135,20 +252,33 @@ export default function InventoryView() {
             className="w-full p-2 border border-gray-300 rounded bg-white text-black"
           >
             <option value="">All Categories</option>
-            {/* Add your categories here */}
-            <option value="Pc y perifericos">Pc y perifericos</option>
-            <option value="Cuidado personal">Cuidado personal</option>
+            {categories.map((category: Category) => (
+              <option key={category.idCategory} value={category.idCategory}>
+                {category.title}
+              </option>
+            ))}
           </select>
           <select
             value={subcategoryFilter}
             onChange={(e) => setSubcategoryFilter(e.target.value)}
             className="w-full p-2 border border-gray-300 rounded bg-white text-black"
+            disabled={categoryFilter === ""}
           >
             <option value="">All Subcategories</option>
-            {/* Add your subcategories here */}
-            <option value="Mouse">Mouse</option>
-            <option value="Salud visual">Salud visual</option>
+            {subcategories.map((subcategory: Subcategory) => (
+              <option
+                key={subcategory.idSubCategory}
+                value={subcategory.idSubCategory}
+              >
+                {subcategory.title}
+              </option>
+            ))}
           </select>
+          <div className="flex justify-center">
+            <button className="p-2 bg-gray-500 rounded text-white">
+              Search
+            </button>
+          </div>
         </div>
       )}
       {products.map((product, index) => (
@@ -206,6 +336,9 @@ export default function InventoryView() {
                   type="file"
                   accept="image/*"
                   className="w-full p-2 border border-gray-300 rounded mt-1 bg-white text-black"
+                  onChange={(event) =>
+                    setSelectedFile(event.target.files?.[0] || null)
+                  }
                 />
               </label>
               <button
