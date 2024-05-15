@@ -234,7 +234,7 @@ export default function InventoryView() {
           onChange={(e) => setSearchTerm(e.target.value)}
           className="p-2 border border-gray-300 rounded bg-white text-black"
         />
-        <button className="ml-2 p-2 bg-gray-500 rounded bg-white text-withe">
+        <button className="ml-2 p-2 bg-gray-500 rounded text-withe">
           Go
         </button>
       </div>
