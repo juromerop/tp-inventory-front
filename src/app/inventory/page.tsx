@@ -2,7 +2,7 @@
 import { strict } from "assert";
 import React from "react";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface Product {
   name: string;
@@ -13,6 +13,16 @@ interface Product {
   date: string;
   imageUrl: string;
 }
+
+interface Category {
+    idCategory: string;
+    title: string;
+    }
+
+interface Subcategory {
+    idSubCategory: string;
+    title: string;
+    }
 
 function Card({ product }: { product: Product }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -31,8 +41,8 @@ function Card({ product }: { product: Product }) {
           className="h-full w-1/3 object-cover rounded-md shadow-xl"
         />
         <div className="ml-4 text-center">
-          <h2 className="text-xl font-bold">{product.name}</h2>
-          <p className="text-lg pt-3">
+          <h2 className="text-md font-bold">{product.name}</h2>
+          <p className="text-md pt-3">
             {product.category} - {product.subcategory}
           </p>
           <p className="text-md pt-4 font-extralight">
@@ -77,6 +87,30 @@ export default function InventoryView() {
   const [isSearchMenuOpen, setIsSearchMenuOpen] = useState(false);
   const [categoryFilter, setCategoryFilter] = useState("");
   const [subcategoryFilter, setSubcategoryFilter] = useState("");
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [categories, setCategories] = useState([]);
+  const [subcategories, setSubcategories] = useState([]);
+
+  useEffect(() => {
+    fetch(
+      "http://tp-loadbalancer-831349791.us-east-1.elb.amazonaws.com/api/category"
+    )
+      .then((response) => response.json())
+      .then((data) => setCategories(data));
+  }, []);
+
+  useEffect(() => {
+    if (categoryFilter !== "") {
+      fetch(
+        `http://tp-loadbalancer-831349791.us-east-1.elb.amazonaws.com/api/subcategory/${categoryFilter}`
+      )
+        .then((response) => response.json())
+        .then((data) => setSubcategories(data));
+    } else {
+      setSubcategories([]);
+    }
+  }, [categoryFilter]);
+
   const products: Product[] = [
     {
       name: "Mouse Logitech G502 Hero",
@@ -113,7 +147,7 @@ export default function InventoryView() {
       <button className="fixed top-0 left-0 m-4 p-2 bg-gray-600 rounded text-white">
         <a href="/menu">Back</a>
       </button>
-      <h1 className="text-4xl font-bold mb-5 mt-8">Inventory</h1>
+      <h1 className="text-2xl font-bold mb-5 mt-8">Inventory</h1>
       <input
         type="text"
         placeholder="Search by name"
@@ -122,7 +156,7 @@ export default function InventoryView() {
         className="mb-4 p-2 border border-gray-300 rounded bg-white text-black"
       />
       <button
-        className="mb-4 p-2 bg-gray-600 rounded text-white"
+        className="mb-4 p-2 bg-gray-600 rounded text-white text-sm"
         onClick={() => setIsSearchMenuOpen(!isSearchMenuOpen)}
       >
         {isSearchMenuOpen ? "Hide" : "Show"} Advanced Search
@@ -135,19 +169,24 @@ export default function InventoryView() {
             className="w-full p-2 border border-gray-300 rounded bg-white text-black"
           >
             <option value="">All Categories</option>
-            {/* Add your categories here */}
-            <option value="Pc y perifericos">Pc y perifericos</option>
-            <option value="Cuidado personal">Cuidado personal</option>
+            {categories.map((category : Category) => (
+              <option key={category.idCategory} value={category.idCategory}>
+                {category.title}
+              </option>
+            ))}
           </select>
           <select
             value={subcategoryFilter}
             onChange={(e) => setSubcategoryFilter(e.target.value)}
             className="w-full p-2 border border-gray-300 rounded bg-white text-black"
+            disabled={categoryFilter === ""}
           >
             <option value="">All Subcategories</option>
-            {/* Add your subcategories here */}
-            <option value="Mouse">Mouse</option>
-            <option value="Salud visual">Salud visual</option>
+            {subcategories.map((subcategory : Subcategory) => (
+              <option key={subcategory.idSubCategory} value={subcategory.idSubCategory}>
+                {subcategory.title}
+              </option>
+            ))}
           </select>
         </div>
       )}
@@ -206,6 +245,9 @@ export default function InventoryView() {
                   type="file"
                   accept="image/*"
                   className="w-full p-2 border border-gray-300 rounded mt-1 bg-white text-black"
+                  onChange={(event) =>
+                    setSelectedFile(event.target.files?.[0] || null)
+                  }
                 />
               </label>
               <button
