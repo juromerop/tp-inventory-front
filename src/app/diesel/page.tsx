@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 interface Transaction {
   name: string;
@@ -32,71 +32,13 @@ function Card({ transaction }: { transaction: Transaction }) {
 }
 
 export default function DieselView() {
-  const dieselReserve = 100.5;
-  const transactions: Transaction[] = [
-    {
-      name: "John Doe",
-      type: "add",
-      amount: 10.3,
-      date: "2022-01-01",
-      truckNumber: 1876,
-    },
-    {
-      name: "Jane Doe",
-      type: "remove",
-      amount: 5.2,
-      date: "2022-01-02",
-      truckNumber: 8977,
-    },
-    {
-      name: "John Doe",
-      type: "add",
-      amount: 10.3,
-      date: "2022-01-01",
-      truckNumber: 1876,
-    },
-    {
-      name: "Jane Doe",
-      type: "remove",
-      amount: 5.2,
-      date: "2022-01-02",
-      truckNumber: 8977,
-    },
-    {
-      name: "John Doe",
-      type: "add",
-      amount: 10.3,
-      date: "2022-01-01",
-      truckNumber: 1876,
-    },
-    {
-      name: "Jane Doe",
-      type: "remove",
-      amount: 5.2,
-      date: "2022-01-02",
-      truckNumber: 8977,
-    },
-    {
-      name: "John Doe",
-      type: "add",
-      amount: 10.3,
-      date: "2022-01-01",
-      truckNumber: 1876,
-    },
-    {
-      name: "Jane Doe",
-      type: "remove",
-      amount: 5.2,
-      date: "2022-01-02",
-      truckNumber: 8977,
-    },
-  ];
-
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [name, setName] = useState("");
   const [type, setType] = useState("");
   const [gallons, setGallons] = useState("");
   const [truckNumber, setTruckNumber] = useState("");
+  const [dieselData, setDieselData] = useState([]);
+  const [dieselReserve, setDieselReserve] = useState(0);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -132,6 +74,32 @@ export default function DieselView() {
     }
   };
 
+  useEffect(() => {
+    fetch(
+      "http://tp-loadbalancer-831349791.us-east-1.elb.amazonaws.com/api/diesel"
+    )
+      .then((response) => response.json())
+      .then((data) => {
+        setDieselData(
+          data.reverse().map((item: { user: any; added: any; quantity: any; created_at: any; truckNumber: any; }) => {
+            const date = new Date(item.created_at);
+            const formattedDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+        
+            return {
+              name: item.user,
+              type: item.added ? "add" : "remove",
+              amount: item.quantity,
+              date: formattedDate,
+              truckNumber: item.truckNumber,
+            };
+          })
+        )
+
+        setDieselReserve(data[0].total_diesel);
+      })
+      .catch((error) => console.error("Error fetching diesel data:", error));
+  }, []);
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-800 text-white relative">
       <button className="fixed top-0 left-0 m-4 p-2 bg-gray-600 rounded text-white">
@@ -142,7 +110,7 @@ export default function DieselView() {
         <span className="text-lg font-normal"> gallons in reserve</span>
       </h1>
       <div className="flex flex-col items-center">
-        {transactions.map((transaction, index) => (
+        {dieselData.map((transaction, index) => (
           <Card key={index} transaction={transaction} />
         ))}
       </div>

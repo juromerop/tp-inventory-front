@@ -12,6 +12,7 @@ interface Product {
   quantity: number;
   date: string;
   imageUrl: string;
+  location: string;
 }
 
 interface Category {
@@ -59,12 +60,13 @@ function Card({ product }: { product: Product }) {
         />
         <div className="ml-4 text-center">
           <h2 className="text-md font-bold">{product.name}</h2>
-          <p className="text-md pt-3">
+          <p className="text-md pt-2">
             {product.category} - {product.subcategory}
           </p>
-          <p className="text-md pt-4 font-extralight">
+          <p className="text-md pt-2 font-extralight">
             {product.quantity} units
           </p>
+          <p className="text-md pt-2 font-extralight">{product.location}</p>
         </div>
       </div>
 
@@ -96,6 +98,9 @@ function Card({ product }: { product: Product }) {
               </p>
             )}
             <p className="text-md pt-2">{product.description}</p>
+            <p className="text-md pt-2">
+              Located in <span className="font-bold">{product.location}</span>
+            </p>
             {isEditing ? (
               <button
                 className="absolute bottom-4 right-4 text-green-500"
@@ -167,6 +172,7 @@ export default function InventoryView() {
       date: "2022-01-01",
       imageUrl:
         "https://tp-inventory-images.s3.us-east-2.amazonaws.com/IMG_8306.jpg",
+      location: "Bodega 1",
     },
     {
       name: "Gafas filtro azul",
@@ -178,39 +184,7 @@ export default function InventoryView() {
       date: "2022-02-02",
       imageUrl:
         "https://tp-inventory-images.s3.us-east-2.amazonaws.com/IMG_8307.jpg",
-    },
-    {
-      name: "Gafas filtro azul",
-      description:
-        "Gafas con filtro azul para proteger tus ojos de la luz azul de las pantallas.",
-      category: "Cuidado personal",
-      subcategory: "Salud visual",
-      quantity: 20,
-      date: "2022-02-02",
-      imageUrl:
-        "https://tp-inventory-images.s3.us-east-2.amazonaws.com/IMG_8307.jpg",
-    },
-    {
-      name: "Gafas filtro azul",
-      description:
-        "Gafas con filtro azul para proteger tus ojos de la luz azul de las pantallas.",
-      category: "Cuidado personal",
-      subcategory: "Salud visual",
-      quantity: 20,
-      date: "2022-02-02",
-      imageUrl:
-        "https://tp-inventory-images.s3.us-east-2.amazonaws.com/IMG_8307.jpg",
-    },
-    {
-      name: "Gafas filtro azul",
-      description:
-        "Gafas con filtro azul para proteger tus ojos de la luz azul de las pantallas.",
-      category: "Cuidado personal",
-      subcategory: "Salud visual",
-      quantity: 20,
-      date: "2022-02-02",
-      imageUrl:
-        "https://tp-inventory-images.s3.us-east-2.amazonaws.com/IMG_8307.jpg",
+      location: "Bodega 2",
     },
   ];
   const filteredProducts = products.filter((product) => {
@@ -234,9 +208,7 @@ export default function InventoryView() {
           onChange={(e) => setSearchTerm(e.target.value)}
           className="p-2 border border-gray-300 rounded bg-white text-black"
         />
-        <button className="ml-2 p-2 bg-gray-500 rounded text-withe">
-          Go
-        </button>
+        <button className="ml-2 p-2 bg-gray-500 rounded text-withe">Go</button>
       </div>
       <button
         className="mb-4 p-2 bg-gray-600 rounded text-white text-sm"
@@ -329,6 +301,14 @@ export default function InventoryView() {
                   type="number"
                   className="w-full p-2 border border-gray-300 rounded mt-1 bg-white text-black"
                 />
+              </label>
+              <label className="block">
+                Location:
+                <input
+                  type="text"
+                  className="w-full p-2 border border-gray-300 rounded mt-1 bg-white text-black"
+                />
+
               </label>
               <label className="block">
                 Photo:
