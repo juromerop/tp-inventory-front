@@ -15,6 +15,11 @@ export default function Page() {
         >
           <a href="/inventory">Inventory Management</a>
         </button>
+        <button
+            className="px-4 py-2 mt-4 bg-blue-700 text-white text-xl font-normal rounded-lg shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 w-64"
+            >
+            <a href="/create">Create Categories</a>
+        </button>
       </div>
     </div>
   );

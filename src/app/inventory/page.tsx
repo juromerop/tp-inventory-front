@@ -11,7 +11,9 @@ interface Product {
   subcategory: string;
   quantity: number;
   date: string;
-  imageUrl: string;
+  url: string;
+  location: string;
+  id_p: number;
 }
 
 interface Category {
@@ -44,6 +46,37 @@ function Card({ product }: { product: Product }) {
     setIsEditing(false);
   };
 
+  const handleCreateCategory = async (event: {
+    preventDefault: () => void;
+  }) => {
+    // Prevent the default form submit action
+    event.preventDefault();
+
+    if (isNaN(editedQuantity) || editedQuantity < 0) {
+      alert("Please enter a number greater than 0");
+      return;
+    }
+
+    const response = await fetch(
+      "http://tp-loadbalancer-831349791.us-east-1.elb.amazonaws.com/api/Product",
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ id: product.id_p, quantity: editedQuantity }),
+      }
+    );
+
+    if (!response.ok) {
+      alert("Error updating product");
+      return;
+    }
+
+    product.quantity = editedQuantity;
+    setIsEditing(false);
+  };
+
   return (
     <>
       <div
@@ -53,18 +86,19 @@ function Card({ product }: { product: Product }) {
         onClick={() => setIsModalOpen(true)}
       >
         <img
-          src={product.imageUrl}
+          src={product.url}
           alt="Product"
           className="h-full w-1/3 object-cover rounded-md shadow-xl"
         />
         <div className="ml-4 text-center">
           <h2 className="text-md font-bold">{product.name}</h2>
-          <p className="text-md pt-3">
+          <p className="text-md pt-2">
             {product.category} - {product.subcategory}
           </p>
-          <p className="text-md pt-4 font-extralight">
+          <p className="text-md pt-2 font-extralight">
             {product.quantity} units
           </p>
+          <p className="text-md pt-2 font-extralight">{product.location}</p>
         </div>
       </div>
 
@@ -75,9 +109,9 @@ function Card({ product }: { product: Product }) {
               {product.name}
             </h2>
             <img
-              src={product.imageUrl}
+              src={product.url}
               alt="Product"
-              className="h-64 w-full object-cover mb-4"
+              className="h-64 w-full object-cover mb-4 rounded-md"
             />
             <p className="text-lg">
               {product.category} - {product.subcategory}
@@ -96,10 +130,13 @@ function Card({ product }: { product: Product }) {
               </p>
             )}
             <p className="text-md pt-2">{product.description}</p>
+            <p className="text-md pt-2">
+              Located in <span className="font-bold">{product.location}</span>
+            </p>
             {isEditing ? (
               <button
                 className="absolute bottom-4 right-4 text-green-500"
-                onClick={handleConfirmClick}
+                onClick={handleCreateCategory}
               >
                 Confirm
               </button>
@@ -135,6 +172,14 @@ export default function InventoryView() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [categories, setCategories] = useState([]);
   const [subcategories, setSubcategories] = useState([]);
+  const [allProducts, setProducts] = useState<Product[]>([]);
+  const [newName, setNewName] = useState("");
+  const [newDescription, setNewDescription] = useState("");
+  const [newCategory, setNewCategory] = useState("");
+  const [newSubcategory, setNewSubcategory] = useState("");
+  const [newQuantity, setNewQuantity] = useState(0);
+  const [newLocation, setNewLocation] = useState("");
+  const [newPhoto, setNewPhoto] = useState("");
 
   useEffect(() => {
     fetch(
@@ -156,70 +201,99 @@ export default function InventoryView() {
     }
   }, [categoryFilter]);
 
-  const products: Product[] = [
-    {
-      name: "Mouse Logitech G502 Hero",
-      description:
-        "Mouse gamer Logitech G502 Hero con sensor Hero 16K y 11 botones programables.",
-      category: "Pc y perifericos",
-      subcategory: "Mouse",
-      quantity: 10,
-      date: "2022-01-01",
-      imageUrl:
-        "https://tp-inventory-images.s3.us-east-2.amazonaws.com/IMG_8306.jpg",
-    },
-    {
-      name: "Gafas filtro azul",
-      description:
-        "Gafas con filtro azul para proteger tus ojos de la luz azul de las pantallas.",
-      category: "Cuidado personal",
-      subcategory: "Salud visual",
-      quantity: 20,
-      date: "2022-02-02",
-      imageUrl:
-        "https://tp-inventory-images.s3.us-east-2.amazonaws.com/IMG_8307.jpg",
-    },
-    {
-      name: "Gafas filtro azul",
-      description:
-        "Gafas con filtro azul para proteger tus ojos de la luz azul de las pantallas.",
-      category: "Cuidado personal",
-      subcategory: "Salud visual",
-      quantity: 20,
-      date: "2022-02-02",
-      imageUrl:
-        "https://tp-inventory-images.s3.us-east-2.amazonaws.com/IMG_8307.jpg",
-    },
-    {
-      name: "Gafas filtro azul",
-      description:
-        "Gafas con filtro azul para proteger tus ojos de la luz azul de las pantallas.",
-      category: "Cuidado personal",
-      subcategory: "Salud visual",
-      quantity: 20,
-      date: "2022-02-02",
-      imageUrl:
-        "https://tp-inventory-images.s3.us-east-2.amazonaws.com/IMG_8307.jpg",
-    },
-    {
-      name: "Gafas filtro azul",
-      description:
-        "Gafas con filtro azul para proteger tus ojos de la luz azul de las pantallas.",
-      category: "Cuidado personal",
-      subcategory: "Salud visual",
-      quantity: 20,
-      date: "2022-02-02",
-      imageUrl:
-        "https://tp-inventory-images.s3.us-east-2.amazonaws.com/IMG_8307.jpg",
-    },
-  ];
-  const filteredProducts = products.filter((product) => {
-    return (
-      product.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
-      (categoryFilter === "" || product.category === categoryFilter) &&
-      (subcategoryFilter === "" || product.subcategory === subcategoryFilter)
+  useEffect(() => {
+    fetch(
+      "http://tp-loadbalancer-831349791.us-east-1.elb.amazonaws.com/api/Product"
+    )
+      .then((response) => response.json())
+      .then((data) => setProducts(data));
+  }, []);
+
+  async function handleSearchFilter(
+    categoryFilter: string,
+    subcategoryFilter: string
+  ) {
+    console.log(categoryFilter, subcategoryFilter);
+    console.log(
+      `http://tp-loadbalancer-831349791.us-east-1.elb.amazonaws.com/api/Product?categoryId=${categoryFilter}&subcategoryId=${subcategoryFilter}`
     );
-  });
+    const response = await fetch(
+      `http://tp-loadbalancer-831349791.us-east-1.elb.amazonaws.com/api/Product?categoryId=${categoryFilter}&subcategoryId=${subcategoryFilter}`
+    );
+
+    if (!response.ok) {
+      alert("Error fetching products");
+      return;
+    }
+
+    const data = await response.json();
+    setProducts(data);
+    setCategoryFilter("");
+    setSubcategoryFilter("");
+  }
+
+  async function handleSearchInput() {
+    const response = await fetch(
+      `http://tp-loadbalancer-831349791.us-east-1.elb.amazonaws.com/api/Product?query=${searchTerm}`
+    );
+
+    if (!response.ok) {
+      alert("Error fetching products");
+      return;
+    }
+
+    const data = await response.json();
+    setProducts(data);
+    setSearchTerm("");
+  }
+
+  const handleCreateProduct = async (event: { preventDefault: () => void }) => {
+    // Prevent the default form submit action
+    event.preventDefault();
+
+    if (
+      newName.trim() === "" ||
+      newDescription.trim() === "" ||
+      newQuantity < 0 ||
+      newQuantity === null ||
+      isNaN(newQuantity) ||
+      newLocation.trim() === "" ||
+      selectedFile === null
+    ) {
+      alert("Please fill all fields");
+      return;
+    }
+
+    const response = await fetch(
+      "http://tp-loadbalancer-831349791.us-east-1.elb.amazonaws.com/api/Product",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: newName,
+          description: newDescription,
+          quantity: newQuantity,
+          location: newLocation,
+          url: newPhoto,
+        }),
+      }
+    );
+
+    if (!response.ok) {
+      alert("Error creating product");
+      return;
+    }
+
+    setNewName("");
+    setNewDescription("");
+    setNewQuantity(0);
+    setNewLocation("");
+    setNewPhoto("");
+    alert("Product created successfully");
+    window.location.reload();
+  };
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-800 text-white">
       <button className="fixed top-0 left-0 m-4 p-2 bg-gray-600 rounded text-white">
@@ -234,7 +308,10 @@ export default function InventoryView() {
           onChange={(e) => setSearchTerm(e.target.value)}
           className="p-2 border border-gray-300 rounded bg-white text-black"
         />
-        <button className="ml-2 p-2 bg-gray-500 rounded text-withe">
+        <button
+          className="ml-2 p-2 bg-gray-500 rounded text-withe"
+          onClick={handleSearchInput}
+        >
           Go
         </button>
       </div>
@@ -275,13 +352,21 @@ export default function InventoryView() {
             ))}
           </select>
           <div className="flex justify-center">
-            <button className="p-2 bg-gray-500 rounded text-white">
+            <button
+              className="p-2 bg-gray-500 rounded text-white"
+              onClick={() => {
+                handleSearchFilter(categoryFilter, subcategoryFilter);
+              }}
+            >
               Search
             </button>
           </div>
         </div>
       )}
-      {products.map((product, index) => (
+      {/* {products.map((product, index) => (
+        <Card key={index} product={product} />
+      ))} */}
+      {allProducts.map((product, index) => (
         <Card key={index} product={product} />
       ))}
       <button
@@ -300,6 +385,8 @@ export default function InventoryView() {
                 <input
                   type="text"
                   className="w-full p-2 border border-gray-300 rounded mt-1 bg-white text-black"
+                  value={newName}
+                  onChange={(e) => setNewName(e.target.value)}
                 />
               </label>
               <label className="block">
@@ -307,20 +394,41 @@ export default function InventoryView() {
                 <input
                   type="text"
                   className="w-full p-2 border border-gray-300 rounded mt-1 bg-white text-black"
+                  value={newDescription}
+                  onChange={(e) => setNewDescription(e.target.value)}
                 />
               </label>
               <label className="block">
                 Category:
-                <select className="w-full p-2 border border-gray-300 rounded mt-1 bg-white text-black">
-                  <option value="add">Non category</option>
-                  <option value="remove">Remove</option>
+                <select
+                  className="w-full p-2 border border-gray-300 rounded mt-1 bg-white text-black"
+                  value={categoryFilter}
+                  onChange={(e) => setCategoryFilter(e.target.value)}
+                >
+                  {categories.map((category: Category) => (
+                    <option
+                      key={category.idCategory}
+                      value={category.idCategory}
+                    >
+                      {category.title}
+                    </option>
+                  ))}
                 </select>
               </label>
               <label className="block">
                 Subcategory:
-                <select className="w-full p-2 border border-gray-300 rounded mt-1 bg-white text-black">
-                  <option value="add">Non subcategory</option>
-                  <option value="remove">Remove</option>
+                <select className="w-full p-2 border border-gray-300 rounded mt-1 bg-white text-black"
+                value={subcategoryFilter}
+                onChange={(e) => setSubcategoryFilter(e.target.value)}
+                >
+                  {subcategories.map((subcategory: Subcategory) => (
+                    <option
+                      key={subcategory.idSubCategory}
+                      value={subcategory.idSubCategory}
+                    >
+                      {subcategory.title}
+                    </option>
+                  ))}
                 </select>
               </label>
               <label className="block">
@@ -328,12 +436,24 @@ export default function InventoryView() {
                 <input
                   type="number"
                   className="w-full p-2 border border-gray-300 rounded mt-1 bg-white text-black"
+                  value={newQuantity}
+                  onChange={(e) => setNewQuantity(parseInt(e.target.value))}
+                />
+              </label>
+              <label className="block">
+                Location:
+                <input
+                  type="text"
+                  className="w-full p-2 border border-gray-300 rounded mt-1 bg-white text-black"
+                  value={newLocation}
+                  onChange={(e) => setNewLocation(e.target.value)}
                 />
               </label>
               <label className="block">
                 Photo:
                 <input
                   type="file"
+                  value={selectedFile?.name || ""}
                   accept="image/*"
                   className="w-full p-2 border border-gray-300 rounded mt-1 bg-white text-black"
                   onChange={(event) =>
@@ -344,6 +464,7 @@ export default function InventoryView() {
               <button
                 className="w-full p-2 rounded bg-green-500 text-white"
                 type="submit"
+                onClick={handleCreateProduct}
               >
                 Submit
               </button>

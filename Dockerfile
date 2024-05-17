@@ -1,5 +1,5 @@
 # Establecer la imagen base
-FROM node:14-alpine
+FROM node:18-alpine
 
 # Establecer el directorio de trabajo en el contenedor
 WORKDIR /app
