@@ -276,7 +276,8 @@ export default function InventoryView() {
           description: newDescription,
           quantity: newQuantity,
           location: newLocation,
-          url: newPhoto,
+          category: newCategory,
+          subcategory: newSubcategory,
         }),
       }
     );
@@ -380,31 +381,32 @@ export default function InventoryView() {
           <div className="bg-gray-600 p-4 rounded-lg shadow-lg text-white max-w-lg w-full max-h-full overflow-auto">
             <h2 className="text-2xl font-bold mb-4 text-center">New Product</h2>
             <form className="space-y-4">
-              <label className="block">
+              <label className="block flex items-center">
                 Name:
                 <input
                   type="text"
-                  className="w-full p-2 border border-gray-300 rounded mt-1 bg-white text-black"
+                  className="w-[75%] ml-auto p-2 h-8 border border-gray-300 rounded mt-1 bg-white text-black"
                   value={newName}
                   onChange={(e) => setNewName(e.target.value)}
                 />
               </label>
-              <label className="block">
+              <label className="block flex items-center">
                 Description:
                 <input
                   type="text"
-                  className="w-full p-2 border border-gray-300 rounded mt-1 bg-white text-black"
+                  className="w-[75%] ml-auto p-2 h-12 border border-gray-300 rounded mt-1 bg-white text-black"
                   value={newDescription}
                   onChange={(e) => setNewDescription(e.target.value)}
                 />
               </label>
-              <label className="block">
+              <label className="block flex items-center">
                 Category:
                 <select
-                  className="w-full p-2 border border-gray-300 rounded mt-1 bg-white text-black"
+                  className="w-[75%] ml-auto p-2 h-8 border border-gray-300 rounded mt-1 bg-white text-black"
                   value={categoryFilter}
                   onChange={(e) => setCategoryFilter(e.target.value)}
                 >
+                  <option value="">Select a category</option>
                   {categories.map((category: Category) => (
                     <option
                       key={category.idCategory}
@@ -415,12 +417,14 @@ export default function InventoryView() {
                   ))}
                 </select>
               </label>
-              <label className="block">
+              <label className="block flex items-center">
                 Subcategory:
-                <select className="w-full p-2 border border-gray-300 rounded mt-1 bg-white text-black"
-                value={subcategoryFilter}
-                onChange={(e) => setSubcategoryFilter(e.target.value)}
+                <select
+                  className="w-[75%] ml-auto p-2 h-8 border border-gray-300 rounded mt-1 bg-white text-black"
+                  value={subcategoryFilter}
+                  onChange={(e) => setSubcategoryFilter(e.target.value)}
                 >
+                  <option value="">Select a subcategory</option>
                   {subcategories.map((subcategory: Subcategory) => (
                     <option
                       key={subcategory.idSubCategory}
@@ -431,31 +435,30 @@ export default function InventoryView() {
                   ))}
                 </select>
               </label>
-              <label className="block">
+              <label className="block flex items-center">
                 Quantity:
                 <input
                   type="number"
-                  className="w-full p-2 border border-gray-300 rounded mt-1 bg-white text-black"
+                  className="w-[75%] ml-auto p-2 h-8 border border-gray-300 rounded mt-1 bg-white text-black"
                   value={newQuantity}
                   onChange={(e) => setNewQuantity(parseInt(e.target.value))}
                 />
               </label>
-              <label className="block">
+              <label className="block flex items-center">
                 Location:
                 <input
                   type="text"
-                  className="w-full p-2 border border-gray-300 rounded mt-1 bg-white text-black"
+                  className="w-[75%] ml-auto p-2 h-8 border border-gray-300 rounded mt-1 bg-white text-black"
                   value={newLocation}
                   onChange={(e) => setNewLocation(e.target.value)}
                 />
               </label>
-              <label className="block">
+              <label className="block flex items-center">
                 Photo:
                 <input
                   type="file"
-                  value={selectedFile?.name || ""}
                   accept="image/*"
-                  className="w-full p-2 border border-gray-300 rounded mt-1 bg-white text-black"
+                  className="w-[75%] ml-auto p-2 h-12 border border-gray-300 rounded mt-1 bg-white text-black"
                   onChange={(event) =>
                     setSelectedFile(event.target.files?.[0] || null)
                   }
