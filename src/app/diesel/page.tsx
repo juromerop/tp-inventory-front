@@ -81,7 +81,7 @@ export default function DieselView() {
       .then((response) => response.json())
       .then((data) => {
         setDieselData(
-          data.reverse().map((item: { user: any; added: any; quantity: any; created_at: any; truckNumber: any; }) => {
+          data.map((item: { user: any; added: any; quantity: any; created_at: any; truckNumber: any; }) => {
             const date = new Date(item.created_at);
             const formattedDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
         
