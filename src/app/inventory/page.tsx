@@ -257,32 +257,40 @@ export default function InventoryView() {
       newQuantity < 0 ||
       newQuantity === null ||
       isNaN(newQuantity) ||
-      newLocation.trim() === "" ||
-      selectedFile === null
+      newLocation.trim() === ""
+      //   selectedFile === null
     ) {
       alert("Please fill all fields");
       return;
+    }
+
+    const formData = new FormData();
+    formData.append(
+      "data",
+      JSON.stringify({
+        name: newName,
+        description: newDescription,
+        quantity: newQuantity,
+        location: newLocation,
+        category: newCategory,
+        subcategory: newSubcategory,
+      })
+    );
+    if (selectedFile) {
+      formData.append("file", selectedFile);
     }
 
     const response = await fetch(
       "http://tp-loadbalancer-831349791.us-east-1.elb.amazonaws.com/api/Product",
       {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          name: newName,
-          description: newDescription,
-          quantity: newQuantity,
-          location: newLocation,
-          category: newCategory,
-          subcategory: newSubcategory,
-        }),
+        body: formData,
       }
     );
 
     if (!response.ok) {
+      console.log(response);
+      console.log(response.body);
       alert("Error creating product");
       return;
     }
@@ -385,7 +393,7 @@ export default function InventoryView() {
                 Name:
                 <input
                   type="text"
-                  className="w-[75%] ml-auto p-2 h-8 border border-gray-300 rounded mt-1 bg-white text-black"
+                  className="w-[70%] ml-auto p-2 h-8 border border-gray-300 rounded mt-1 bg-white text-black"
                   value={newName}
                   onChange={(e) => setNewName(e.target.value)}
                 />
@@ -394,7 +402,7 @@ export default function InventoryView() {
                 Description:
                 <input
                   type="text"
-                  className="w-[75%] ml-auto p-2 h-12 border border-gray-300 rounded mt-1 bg-white text-black"
+                  className="w-[70%] ml-auto p-2 h-12 border border-gray-300 rounded mt-1 bg-white text-black"
                   value={newDescription}
                   onChange={(e) => setNewDescription(e.target.value)}
                 />
@@ -402,7 +410,7 @@ export default function InventoryView() {
               <label className="block flex items-center">
                 Category:
                 <select
-                  className="w-[75%] ml-auto p-2 h-8 border border-gray-300 rounded mt-1 bg-white text-black"
+                  className="w-[70%] ml-auto p-2 h-8 border border-gray-300 rounded mt-1 bg-white text-black"
                   value={categoryFilter}
                   onChange={(e) => setCategoryFilter(e.target.value)}
                 >
@@ -420,7 +428,7 @@ export default function InventoryView() {
               <label className="block flex items-center">
                 Subcategory:
                 <select
-                  className="w-[75%] ml-auto p-2 h-8 border border-gray-300 rounded mt-1 bg-white text-black"
+                  className="w-[70%] ml-auto p-2 h-8 border border-gray-300 rounded mt-1 bg-white text-black"
                   value={subcategoryFilter}
                   onChange={(e) => setSubcategoryFilter(e.target.value)}
                 >
@@ -439,7 +447,7 @@ export default function InventoryView() {
                 Quantity:
                 <input
                   type="number"
-                  className="w-[75%] ml-auto p-2 h-8 border border-gray-300 rounded mt-1 bg-white text-black"
+                  className="w-[70%] ml-auto p-2 h-8 border border-gray-300 rounded mt-1 bg-white text-black"
                   value={newQuantity}
                   onChange={(e) => setNewQuantity(parseInt(e.target.value))}
                 />
@@ -448,7 +456,7 @@ export default function InventoryView() {
                 Location:
                 <input
                   type="text"
-                  className="w-[75%] ml-auto p-2 h-8 border border-gray-300 rounded mt-1 bg-white text-black"
+                  className="w-[70%] ml-auto p-2 h-8 border border-gray-300 rounded mt-1 bg-white text-black"
                   value={newLocation}
                   onChange={(e) => setNewLocation(e.target.value)}
                 />
@@ -458,7 +466,7 @@ export default function InventoryView() {
                 <input
                   type="file"
                   accept="image/*"
-                  className="w-[75%] ml-auto p-2 h-12 border border-gray-300 rounded mt-1 bg-white text-black"
+                  className="w-[70%] ml-auto p-2 h-12 border border-gray-300 rounded mt-1 bg-white text-black"
                   onChange={(event) =>
                     setSelectedFile(event.target.files?.[0] || null)
                   }
