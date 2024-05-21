@@ -1,6 +1,6 @@
 "use client";
-import { strict } from "assert";
-import React from "react";
+
+import React, { ChangeEvent } from "react";
 
 import { useState, useEffect } from "react";
 
@@ -179,7 +179,7 @@ export default function InventoryView() {
   const [newSubcategory, setNewSubcategory] = useState("");
   const [newQuantity, setNewQuantity] = useState(0);
   const [newLocation, setNewLocation] = useState("");
-  const [newPhoto, setNewPhoto] = useState("");
+  const [file, setFile] = useState<File | null>(null);
 
   useEffect(() => {
     fetch(
@@ -247,41 +247,38 @@ export default function InventoryView() {
     setSearchTerm("");
   }
 
+  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const selectedFile = e.target.files?.[0];
+    if (selectedFile) {
+      setFile(selectedFile);
+    }
+  };
+
   const handleCreateProduct = async (event: { preventDefault: () => void }) => {
     // Prevent the default form submit action
     event.preventDefault();
 
     if (
       newName.trim() === "" ||
-      newDescription.trim() === "" ||
-      newQuantity < 0 ||
-      newQuantity === null ||
+      newQuantity <= 0 ||
       isNaN(newQuantity) ||
-      newLocation.trim() === ""
-      //   selectedFile === null
+      newLocation.trim() === "" 
+    //   newCategory.trim() === "" ||
+    //   selectedFile === null ||
+    //   selectedFile === undefined
     ) {
       alert("Please fill all fields");
       return;
     }
 
+    // First, upload the image
     const formData = new FormData();
-    formData.append(
-      "data",
-      JSON.stringify({
-        name: newName,
-        description: newDescription,
-        quantity: newQuantity,
-        location: newLocation,
-        category: newCategory,
-        subcategory: newSubcategory,
-      })
-    );
-    if (selectedFile) {
-      formData.append("file", selectedFile);
+    if (file) {
+      formData.append("file", file);
     }
 
     const response = await fetch(
-      "http://tp-loadbalancer-831349791.us-east-1.elb.amazonaws.com/api/Product",
+      "http://tp-loadbalancer-831349791.us-east-1.elb.amazonaws.com/api/Storage",
       {
         method: "POST",
         body: formData,
@@ -289,8 +286,41 @@ export default function InventoryView() {
     );
 
     if (!response.ok) {
-      console.log(response);
-      console.log(response.body);
+      alert("Error uploading image");
+      return;
+    }
+    else {
+        alert("Image uploaded successfully");
+    }
+
+    const { url, nameFile } = await response.json();
+
+    console.log(url, nameFile);
+    console.log(newName, newDescription, newQuantity, newLocation, newCategory, newSubcategory, url, nameFile);
+    console.log(categoryFilter, subcategoryFilter);
+
+    // Then, create the product
+    const productResponse = await fetch(
+      "http://tp-loadbalancer-831349791.us-east-1.elb.amazonaws.com/api/Product",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: newName,
+          description: newDescription,
+          quantity: newQuantity,
+          location: newLocation,
+          category: categoryFilter,
+          subcategory: parseInt(subcategoryFilter),
+          url: url,
+          nameFile: nameFile,
+        }),
+      }
+    );
+
+    if (!productResponse.ok) {
       alert("Error creating product");
       return;
     }
@@ -299,10 +329,13 @@ export default function InventoryView() {
     setNewDescription("");
     setNewQuantity(0);
     setNewLocation("");
-    setNewPhoto("");
+    setSelectedFile(null);
+    setCategoryFilter("");
+    setSubcategoryFilter("");
     alert("Product created successfully");
     window.location.reload();
   };
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-800 text-white">
       <button className="fixed top-0 left-0 m-4 p-2 bg-gray-600 rounded text-white">
@@ -467,9 +500,7 @@ export default function InventoryView() {
                   type="file"
                   accept="image/*"
                   className="w-[70%] ml-auto p-2 h-12 border border-gray-300 rounded mt-1 bg-white text-black"
-                  onChange={(event) =>
-                    setSelectedFile(event.target.files?.[0] || null)
-                  }
+                  onChange={handleFileChange}
                 />
               </label>
               <button
