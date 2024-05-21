@@ -180,6 +180,7 @@ export default function InventoryView() {
   const [newQuantity, setNewQuantity] = useState(0);
   const [newLocation, setNewLocation] = useState("");
   const [file, setFile] = useState<File | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     fetch(
@@ -257,6 +258,7 @@ export default function InventoryView() {
   const handleCreateProduct = async (event: { preventDefault: () => void }) => {
     // Prevent the default form submit action
     event.preventDefault();
+    setIsLoading(true);
 
     if (
       newName.trim() === "" ||
@@ -290,14 +292,15 @@ export default function InventoryView() {
       return;
     }
     else {
-        alert("Image uploaded successfully");
+        // alert("Image uploaded successfully");
+        console.log("Image uploaded successfully");
     }
 
     const { url, nameFile } = await response.json();
 
-    console.log(url, nameFile);
-    console.log(newName, newDescription, newQuantity, newLocation, newCategory, newSubcategory, url, nameFile);
-    console.log(categoryFilter, subcategoryFilter);
+    // console.log(url, nameFile);
+    // console.log(newName, newDescription, newQuantity, newLocation, newCategory, newSubcategory, url, nameFile);
+    // console.log(categoryFilter, subcategoryFilter);
 
     // Then, create the product
     const productResponse = await fetch(
@@ -333,6 +336,7 @@ export default function InventoryView() {
     setCategoryFilter("");
     setSubcategoryFilter("");
     alert("Product created successfully");
+    setIsLoading(false);
     window.location.reload();
   };
 
@@ -507,8 +511,9 @@ export default function InventoryView() {
                 className="w-full p-2 rounded bg-green-500 text-white"
                 type="submit"
                 onClick={handleCreateProduct}
+                disabled={isLoading}
               >
-                Submit
+                {isLoading ? "Loading..." : "Submit"}
               </button>
             </form>
             <button
