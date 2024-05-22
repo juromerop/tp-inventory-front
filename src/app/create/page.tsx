@@ -106,11 +106,12 @@ export default function CreateView() {
     <div
       className="flex flex-col items-center justify-center min-h-screen bg-gray-800 text-white relative"
       style={{
-        backgroundImage: `url(${bg})`,
+        backgroundImage: `url(${bg.src})`,
         backgroundSize: "cover",
         backgroundPosition: "center",
       }}
     >
+
       {/* <img src={bg.src} alt="TransPabon Logo" className="w-72" /> */}
       <button className="fixed top-0 left-0 m-4 p-2 bg-gray-600 rounded text-white ">
         <a href="/menu">Back</a>
