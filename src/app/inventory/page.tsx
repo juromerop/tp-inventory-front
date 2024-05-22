@@ -4,6 +4,8 @@ import React, { ChangeEvent } from "react";
 
 import { useState, useEffect } from "react";
 
+import bg from '../../../public/TpBg.svg';
+
 interface Product {
   name: string;
   description: string;
