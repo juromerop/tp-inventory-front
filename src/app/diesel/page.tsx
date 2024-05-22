@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import bg from '../../../public/tpbg.svg';
+import bg from '../../../public/TpBg.svg';
 
 
 interface Transaction {
