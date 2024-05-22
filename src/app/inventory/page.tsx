@@ -4,7 +4,7 @@ import React, { ChangeEvent } from "react";
 
 import { useState, useEffect } from "react";
 
-import bg from '../../../public/TpBg.svg';
+import bg from "../../../public/tpbg.svg";
 
 interface Product {
   name: string;
@@ -266,10 +266,10 @@ export default function InventoryView() {
       newName.trim() === "" ||
       newQuantity <= 0 ||
       isNaN(newQuantity) ||
-      newLocation.trim() === "" 
-    //   newCategory.trim() === "" ||
-    //   selectedFile === null ||
-    //   selectedFile === undefined
+      newLocation.trim() === ""
+      //   newCategory.trim() === "" ||
+      //   selectedFile === null ||
+      //   selectedFile === undefined
     ) {
       alert("Please fill all fields");
       return;
@@ -292,10 +292,9 @@ export default function InventoryView() {
     if (!response.ok) {
       alert("Error uploading image");
       return;
-    }
-    else {
-        // alert("Image uploaded successfully");
-        console.log("Image uploaded successfully");
+    } else {
+      // alert("Image uploaded successfully");
+      console.log("Image uploaded successfully");
     }
 
     const { url, nameFile } = await response.json();
@@ -343,7 +342,16 @@ export default function InventoryView() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-800 text-white">
+    <div
+      className="flex flex-col items-center justify-center min-h-screen bg-gray-800 text-white"
+      style={{
+        backgroundImage: `url(${bg.src})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        minHeight: "100vh",
+        height: "100%",
+      }}
+    >
       <button className="fixed top-0 left-0 m-4 p-2 bg-gray-600 rounded text-white">
         <a href="/menu">Back</a>
       </button>
@@ -414,9 +422,17 @@ export default function InventoryView() {
       {/* {products.map((product, index) => (
         <Card key={index} product={product} />
       ))} */}
-      {allProducts.map((product, index) => (
-        <Card key={index} product={product} />
-      ))}
+      <div
+        className="flex flex-col items-center overflow-auto  max-h-[75vh]"
+        style={{
+          width: "100%",
+          scrollbarWidth: "none",
+        }}
+      >
+        {allProducts.map((product, index) => (
+          <Card key={index} product={product} />
+        ))}
+      </div>
       <button
         className="fixed bottom-0 right-0 m-4 p-2 bg-green-500 rounded text-white"
         onClick={() => setIsModalOpen(true)}

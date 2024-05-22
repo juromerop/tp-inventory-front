@@ -1,5 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
+import bg from '../../../public/tpbg.svg';
+
 
 interface Transaction {
   name: string;
@@ -12,7 +14,7 @@ interface Transaction {
 function Card({ transaction }: { transaction: Transaction }) {
   return (
     <div
-      className={`mb-6 p-4 rounded-lg bg-gray-600 w-56 text-center ${
+      className={`mb-6 p-4 rounded-lg bg-gray-600 w-52 text-center ${
         transaction.type === "add"
           ? "border-green-500 shadow-green"
           : "border-red-500 shadow-red"
@@ -101,7 +103,16 @@ export default function DieselView() {
   }, []);
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-800 text-white relative">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-800 text-white relative"
+      style={{
+        backgroundImage: `url(${bg.src})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        minHeight: "100vh",
+        height: "100%",
+        
+      }}
+    >
       <button className="fixed top-0 left-0 m-4 p-2 bg-gray-600 rounded text-white">
         <a href="/menu">Back</a>
       </button>
@@ -109,7 +120,11 @@ export default function DieselView() {
         <span className="text-4xl font-bold">{dieselReserve}</span>
         <span className="text-lg font-normal"> gallons in reserve</span>
       </h1>
-      <div className="flex flex-col items-center">
+      <div className="flex flex-col items-center overflow-auto  max-h-[75vh]"
+      style={{
+        width: "100%",
+      scrollbarWidth: "none",
+      }}>
         {dieselData.map((transaction, index) => (
           <Card key={index} transaction={transaction} />
         ))}
@@ -121,8 +136,8 @@ export default function DieselView() {
         Add Transaction
       </button>
       {isModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center z-10">
-          <div className="bg-gray-600 p-4 rounded-lg shadow-lg text-white max-w-lg w-full">
+        <div className="fixed inset-0 flex items-center justify-center ">
+          <div className="bg-gray-600 p-4 rounded-lg shadow-lg text-white  w-full">
             <h2 className="text-2xl font-bold mb-4 text-center">
               New Transaction
             </h2>
@@ -180,6 +195,7 @@ export default function DieselView() {
               Close
             </button>
           </div>
+          
         </div>
       )}
     </div>
